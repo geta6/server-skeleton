@@ -1,0 +1,127 @@
+#!/usr/bin/env coffee
+
+fs = require 'fs'
+path = require 'path'
+
+process.argv.shift()
+process.argv.shift()
+
+type = no
+name = no
+force = no
+
+loop
+  break if fs.existsSync path.resolve 'package.json'
+  process.chdir '..'
+  if '/' is process.cwd()
+    console.error 'no package.json found'
+    process.exit 1
+
+while arg = process.argv.shift()
+  switch arg
+    when '-t', '--type'
+      type = process.argv.shift()
+      type = no unless /(event|model|helper)/.test type
+    when '-f', '--force'
+      force = yes
+    else
+      name = String arg
+      name = no if 1 > name.length
+
+if !type or !name
+  console.error '''
+    Usage: scaffold -f -t [type] [name]
+
+      -f, --force : overwrite if file exists
+      -t, --type  : event or model or helper
+      [name]      : file name, make event and model upper captial
+    '''
+  process.exit 1
+
+String::toUpperCapital = ->
+  @charAt(0).toUpperCase() + @slice 1
+
+type = type.trim()
+name = name.trim()
+
+if /[0-9-]/.test name.slice 0, 1
+  return console.log "invalid name"
+
+if /event/.test type
+  unless fs.existsSync path.resolve 'events'
+    fs.mkdirSync path.resolve 'events'
+  namepath = path.resolve 'events', "#{name.toUpperCapital()}.coffee"
+  if !force and fs.existsSync namepath
+    return console.log "file exists: #{namepath}"
+  fs.writeFileSync namepath, """
+    # in app.coffee :
+    #   #{name.toUpperCapital()} = app.get('events') app
+    #   app.get '/', #{name.toUpperCapital()}.index
+
+    exports.#{name.toUpperCapital()} = (app) ->
+
+      # methods:
+      index: (req, res, next) ->
+        res.end '(null)'
+
+    """
+  return console.log " -> #{namepath}"
+
+if /model/.test type
+  unless fs.existsSync path.resolve 'models'
+    fs.mkdirSync path.resolve 'models'
+  namepath = path.resolve 'models', "#{name.toUpperCapital()}.coffee"
+  if !force and fs.existsSync namepath
+    return console.log "file exists: #{namepath}"
+  fs.writeFileSync namepath, """
+    # in events/*.coffee :
+    #   {#{name.toUpperCapital()}} = app.get 'models'
+    #   #{name.toUpperCapital()}.find (err, #{name}) ->
+    #
+    # include multiple at once :
+    #   {Some, Model, #{name.toUpperCapital()}} = app.get 'models'
+    #
+
+    mongoose = require 'mongoose'
+
+    #{name.toUpperCapital()}Model = new mongoose.Schema
+      # schema
+    ,
+      versionKey: no
+
+    ##{name.toUpperCapital()}Model.virtual('some').get ->
+    #  return 'some'
+
+    ##{name.toUpperCapital()}Model.statics.somemethod = (id, done) ->
+    #  @findOne id: id, {}, {}, (err, #{name}) ->
+    #    console.error err if err
+    #    return done err, #{name}
+
+    exports =
+      #{name.toUpperCapital()}Model: #{name.toUpperCapital()}Model
+      #{name.toUpperCapital()}: mongoose.model '#{name}', #{name.toUpperCapital()}Model
+
+    """
+  return console.log " -> #{namepath}"
+
+if /helper/.test type
+  unless fs.existsSync path.resolve 'helper'
+    fs.mkdirSync path.resolve 'helper'
+  namepath = path.resolve 'helper', "#{name}.coffee"
+  if !force and fs.existsSync namepath
+    return console.log "file exists: #{namepath}"
+  fs.writeFileSync namepath, """
+    # in events/*.coffee :
+    #   {#{name}} = app.get 'helper'
+    #   retval = #{name} 'argument'
+    #
+    # include multiple at once :
+    #   {some, helper, #{name}} = app.get 'helper'
+    #
+
+    exports.#{name} = ->
+      return null
+
+    """
+  return console.log " -> #{namepath}"
+

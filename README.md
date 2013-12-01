@@ -65,24 +65,28 @@ web.coffee | starting web server
 
     $ vi ./events/Account.coffee
 
-    exports.Account = (app) ->
+```coffee
+exports.Account = (app) ->
 
-      {User} = app.get 'models'
+  {User} = app.get 'models'
 
-      user: (req, res) ->
-        User.findById req.params.id, (err, user) ->
-          return res.json 404, {e: 'X-<'} unless user
-          res.json 200, user
+  user: (req, res) ->
+    User.findById req.params.id, (err, user) ->
+      return res.json 404, {e: 'X-<'} unless user
+      res.json 200, user
+```
 
   load :
 
+
     $ vi ./config/app.coffee
 
-    :
-    Account = (app.get 'events').Account app
-    app.get '/account/:id.json',  Account.user
-    :
-
+```coffee
+:
+Account = (app.get 'events').Account app
+app.get '/account/:id.json',  Account.user
+:
+```
 
 ## models
 
@@ -95,27 +99,31 @@ web.coffee | starting web server
 
     $ vi ./models/Item.coffee
 
-    ItemModel = new mongoose.Schema
-      name: type: String
-      count: type: Number
-      owner: type: mongoose.Schema.Types.ObjectId, ref: 'users'
-    ,
-      versionKey: off
-    :
+```coffee
+ItemModel = new mongoose.Schema
+  name: type: String
+  count: type: Number
+  owner: type: mongoose.Schema.Types.ObjectId, ref: 'users'
+,
+  versionKey: off
+:
+```
 
   load :
 
     $ vi ./events/Account.coffee
 
-    exports.Account = (app) ->
+```coffee
+exports.Account = (app) ->
 
-      {User, Item} = app.get 'models'
+  {User, Item} = app.get 'models'
 
-      user: (req, res) ->
-        User.findById req.params.id, (err, user) ->
-          return res.json 404, {e: 'X-<'} unless user
-          Item.find owner: user._id, (err, items) ->
-            res.json 200, { user: user, items: items }
+  user: (req, res) ->
+    User.findById req.params.id, (err, user) ->
+      return res.json 404, {e: 'X-<'} unless user
+      Item.find owner: user._id, (err, items) ->
+        res.json 200, { user: user, items: items }
+```
 
 
 ## helper
@@ -129,26 +137,30 @@ web.coffee | starting web server
 
     $ vi ./helper/errors.coffee
 
-    http = require 'http'
-    exports.errors = (err, code, res) ->
-      res.jsonp code,
-        error: http.STATUS_CODES[code]
-        message: err
+```coffee
+http = require 'http'
+exports.errors = (err, code, res) ->
+  res.jsonp code,
+    error: http.STATUS_CODES[code]
+    message: err
+```
 
   load :
 
     $ vi ./events/Account.coffee
 
-    exports.Account = (app) ->
+```coffee
+exports.Account = (app) ->
 
-      {User, Item} = app.get 'models'
-      {errors} = app.get 'helper'
+  {User, Item} = app.get 'models'
+  {errors} = app.get 'helper'
 
-      user: (req, res) ->
-        User.findById req.params.id, (err, user) ->
-          return errors err, 404, res unless user
-          Item.find owner: user._id, (err, items) ->
-            res.json 200, { user: user, items: items }
+  user: (req, res) ->
+    User.findById req.params.id, (err, user) ->
+      return errors err, 404, res unless user
+      Item.find owner: user._id, (err, items) ->
+        res.json 200, { user: user, items: items }
+```
 
 
 # tasks

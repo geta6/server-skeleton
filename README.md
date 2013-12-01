@@ -56,8 +56,6 @@ web.coffee | starting web server
 
 ## events
 
-  in other words, controller.
-
   create :
 
     $ ./bin/scaffold -t event account
@@ -121,8 +119,6 @@ web.coffee | starting web server
 
 
 ## helper
-
-  in other words, snippets.
 
   create :
 

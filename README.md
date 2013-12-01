@@ -19,11 +19,11 @@
 
   config:
 
-    $ cp ./config/env.json.sample ./config/env.json
+    $ vi Makefile
 
   start:
 
-    $ make run
+    $ make
 
 
 # scaffold

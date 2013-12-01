@@ -22,7 +22,7 @@
     $ cp ./config/env.json.sample ./config/env.json
 
   start:
-  
+
     $ make run
 
 
@@ -52,7 +52,6 @@ file       | role
 -----------|--------------------
 app.coffee | exports express app
 web.coffee | starting web server
-env.json   | load to process.env
 
 
 ## events
@@ -162,40 +161,21 @@ env.json   | load to process.env
 
     $ make
 
-  or
-
-    $ npm start
-
 
 ## run as production mode
 
     $ make production
 
-  or
 
-    $ foreman start
-
-  to change port:
-
-    $ foreman start -p 8080
-
-
-# test
-
-  use supertest.
+## test
 
   edit:
-  
-    $ vi ./tests/test.coffee
 
+    $ vi ./tests/test.coffee
 
   run:
 
-    make test
-
-  or
-
-    npm test
+    $ make test
 
 
 # MIT LICENSE
